@@ -1,6 +1,6 @@
 import {
-  Controller,
-  Post,
+  Controller, Get,
+  Post, Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -12,6 +12,8 @@ import { csvFileFilter, editFileName } from '../utils/file-upload.utils';
 import { ParsedData } from '../csv-parser/parsed-data.interface';
 import { DealsService } from './deals.service';
 import CreateDealDto from './create-deal.dto';
+import ReportDto from "./dtos/report.dto";
+import GetDealsReportDto from "./dtos/get-deals-report.dto";
 
 @Controller('deals')
 export class DealsController {
@@ -44,4 +46,12 @@ export class DealsController {
 
     return await this.dealsService.saveAll(entities.list);
   }
+
+  @Get('report')
+  async report(
+      @Query() getDealsReportDto: GetDealsReportDto,
+  ): Promise<ReportDto> {
+    return await this.dealsService.report(getDealsReportDto);
+  }
+
 }

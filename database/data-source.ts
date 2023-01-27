@@ -1,6 +1,7 @@
 import {DataSource, DataSourceOptions} from "typeorm";
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
+import {Deal} from "../src/deals/entities/deal.entity";
 
 config();
 
@@ -13,7 +14,7 @@ export const dataSourceOptions: DataSourceOptions = {
     username: configService.get('DB_USER'),
     password: configService.get('DB_PASSWORD'),
     database: configService.get('DB_DATABASE'),
-    entities: [],
+    entities: [Deal],
     migrations: ['dist/database/migrations/*.js'],
     migrationsRun: true,
 }
