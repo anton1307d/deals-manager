@@ -47,7 +47,7 @@ export class DealsService {
 
     report.data = [
       {
-        total: result.total ?? 0,
+        total: result[0]?.total ?? 0,
         date: `${data.year}-${data.monthNumber}`,
       },
     ];

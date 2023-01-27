@@ -7,4 +7,5 @@ Nest is [MIT licensed](LICENSE).
 - ./devops install local
 - ./devops build
 - ./devops up -d
-- ./devops logs api -f
+- ./devops  logs -f api
+- before start RUN in db console ``ALTER DATABASE content SET datestyle TO "ISO, DMY";``
