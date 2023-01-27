@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+# it is wrapper around docker-compose with some pre-defined handy shortcuts
+# it allows you to interact with application and it's moving parts and provides means
+# for getting you env ready and configured, and allows to interact with env after that
+
+# always fail early
+set -e
+
+# Disable pseudo-TTY allocation for CI
+TTY=""
+
+# docker-compose shorthand
+COMPOSE="docker-compose"
+
+# execute command in running container
+# globals:
+#   $COMPOSE, $TTY
+# arguments:
+#   $1   - in which container to execute command
+#   $2.. - command itself
+function stack_exec () {
+    local CONTAINER=$1; shift
+    (set -x; $COMPOSE exec $TTY $CONTAINER $@)
+}
+
+# spin up volatile container and run command in it
+# container is removed after command is executed
+# entrypoint of container is replaced with bash
+# globals:
+#   $COMPOSE, $TTY
+# arguments:
+#   $1   - in which container to execute command
+#   $2.. - command itself
+function stack_run () {
+    local CONTAINER=$1; shift
+    (set -x; $COMPOSE run $TTY --rm --entrypoint="/bin/sh -c" $CONTAINER "$*")
+}
+
+# capture 1st arg which denotes command
+COMMAND=$1; shift 1
+
+# main switch where we detect which top-level command or modifier is passed
+case $COMMAND in
+    install)
+        # command
+        # it will just copy templates to your working dir allowing you to tinker with them
+        set -x
+        cp -n ./.deploy/${1:-local}/docker-compose.yml ./docker-compose.yml
+        cp -n ./.env.example ./.env
+        exit
+        ;;
+
+    help)
+        usage
+        ;;
+
+    ci)
+        # modifier
+        # when running in CI or other env where there is no access to TTY for shell script
+        # this modifier will adjust docker-compose arguments to have that in mind
+        echo ">>Running in CI<<"
+        COMPOSE="docker-compose -f docker-compose.yml -f .deploy/ci/docker-compose.yml"
+        COMMAND=$1; shift 1
+        TTY="-T" ;;
+
+    *)
+        # fallback
+        echo ">>Running in DEV<<"
+        ;;
+esac
+
+# shorthand processing switch
+case $COMMAND in
+
+    npm)
+        stack_run api npm $@ ;;
+
+    logs)
+        $COMPOSE logs -f $@ ;;
+
+    shell)
+        stack_exec api sh ;;
+
+    reload)
+        $COMPOSE down
+        $COMPOSE up -d
+        ;;
+
+    *)
+        $COMPOSE $COMMAND $@ ;;
+esac

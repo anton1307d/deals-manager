@@ -1,0 +1,16 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+
+jobs:
+  integration:
+    name: Test
+    runs-on: [ubuntu]
+
+    steps:
+      - name: Test
+        run: |
+          ./devops install ci
+          ./devops ci run api npm run test
+          ./devops ci run api npm run test:e2e

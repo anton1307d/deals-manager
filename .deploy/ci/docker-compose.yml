@@ -1,0 +1,36 @@
+services:
+  api:
+    image: conv/gira-content-sync:${TAG:-ci}
+    build:
+      dockerfile: ./.deploy/Dockerfile
+      context: .
+      target: development
+    environment:
+        APP_ENV: testing
+        DB_HOST: postgres
+        DB_DATABASE: content
+        DB_USER: username
+        DB_PASSWORD: password
+        DB_PORT: 5432
+    command: npm run start:dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - postgres
+
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-content}
+      POSTGRES_USER: ${DB_USER:-username}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  npm.cache:
+  postgres:
+    driver: local
