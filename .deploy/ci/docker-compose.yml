@@ -1,6 +1,6 @@
 services:
   api:
-    image: conv/gira-content-sync:${TAG:-ci}
+    image: anton1307d/deals-parser:${TAG:-ci}
     build:
       dockerfile: ./.deploy/Dockerfile
       context: .
